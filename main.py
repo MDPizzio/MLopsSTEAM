@@ -16,6 +16,8 @@ async def PlayTimeGenre(genre: str):
         cadena_a_buscar = genre
         resultados = df_items[df_items['tags_and_genres'].str.contains(cadena_a_buscar, case=False, na=False)]
 
+        if resultados.empty:
+           return "Genero invalido."
         # Supongamos que tienes un DataFrame llamado df_items
 
         # Agrupa por la columna 'item_id' y suma la columna 'playtime_forever'
@@ -46,6 +48,8 @@ async def UserForGenre(genre : str):
     try:
         cadena_a_buscar = genre
         resultados = df_items[df_items['tags_and_genres'].str.contains(cadena_a_buscar, case=False, na=False)]
+        if resultados.empty:
+           return "Genero invalido."
 
         # Supongamos que tienes un DataFrame llamado df_items
 
@@ -79,11 +83,13 @@ async def UsersRecommend(year : int):
     try:
         year_buscado = int(year)
         recommend_year = df_reviews[df_reviews['posted'] == year_buscado]
+        if recommend_year.empty:
+           return "Año invalido."
 
         recommend_true = recommend_year[recommend_year['recommend'] & ((recommend_year['sentiment_analysis'] == 1) | (recommend_year['sentiment_analysis'] == 2))]
 
         top3most = recommend_true.groupby('item_id')['sentiment_analysis'].count().reset_index()
-
+        
         top3most = pd.merge(top3most, df_games[['id', 'title']], left_on='item_id', right_on='id', how='left')
 
         top3m = top3most.sort_values(['sentiment_analysis'], ascending= False).head(3)
@@ -101,8 +107,10 @@ async def UsersNOTRecommend(year : int):
     try:
         year_buscado = int(year)
         recommend_year = df_reviews[df_reviews['posted'] == year_buscado]
-
-        recommend_false = recommend_year[recommend_year['recommend'] == False & ((recommend_year['sentiment_analysis'] == 0) )]
+        if recommend_year.empty:
+           return "Año invalido."
+    
+        recommend_false = recommend_year[(recommend_year['recommend'] == False) & (recommend_year['sentiment_analysis'] == 0)]
 
         top3least = recommend_false.groupby('item_id')['sentiment_analysis'].count().reset_index()
 
@@ -143,13 +151,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 @app.get("/recomend_games/{product_id}")
-async def recommend_games(product_id, num_recommendations=5):
+async def recommend_games(product_id : int):
     try:
         # Obtén el juego de referencia
         target_game = df_games[df_games['id'] == int(product_id)]
 
-        #if target_game.empty:
-        #    return {"message": "No se encontró el juego de referencia."}
+        num_recommendations = 5
+
+        if target_game.empty:
+            return "No se encontró el juego de referencia."
 
         # Combina las etiquetas (tags) y géneros en una sola cadena de texto
         target_game_tags_and_genres = ' '.join(target_game['tags'].fillna('') + ' ' + target_game['genres'].fillna(''))
