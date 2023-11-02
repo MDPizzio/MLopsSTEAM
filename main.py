@@ -88,7 +88,7 @@ async def UsersRecommend(year : int):
 
         top3m = top3most.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3m))]
+        listafuncion = [(f'Puesto {i + 1}', top3m['title'].iloc[i]) for i in range(len(top3m))]
 
         return(listafuncion)
 
