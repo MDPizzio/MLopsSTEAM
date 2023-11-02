@@ -88,7 +88,7 @@ async def UsersRecommend(year : int):
 
         top3m = top3most.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = [(f'Puesto {i + 1}', top3m['title'].iloc[i]) for i in range(len(top3m))]
+        listafuncion = top3m['id'].tolist
 
         return(listafuncion)
 
@@ -110,7 +110,7 @@ async def UsersNOTRecommend(year : int):
 
         top3l = top3least.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3l))]
+        listafuncion = top3l['id'].tolist
 
         return(listafuncion)
 
@@ -166,9 +166,10 @@ async def recommend_games(product_id, num_recommendations=5):
 
         # Recomienda los juegos más similares
         recommended_games = df_games.loc[similar_games_indices[1:num_recommendations + 1]]
-
+        listarecommended = recommended_games[['title']].tolist()
+        
         # Devuelve la lista de juegos recomendados
-        return recommended_games[['title']].to_dict(orient='records')
+        return listarecommended
 
     except Exception as e:
         return {"message": f"Error: {str(e)}"}
