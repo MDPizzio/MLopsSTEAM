@@ -176,7 +176,7 @@ async def recommend_games(product_id : int):
 
         # Recomienda los juegos más similares
         recommended_games = df_games.loc[similar_games_indices[1:num_recommendations + 1]]
-        listarecommended = recommended_games[['title']].tolist()
+        listarecommended = recommended_games['title'].tolist()
         
         # Devuelve la lista de juegos recomendados
         return listarecommended
