@@ -88,7 +88,7 @@ async def UsersRecommend(year : int):
 
         top3m = top3most.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = top3m['id'].tolist
+        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3l))]
 
         return(listafuncion)
 
@@ -110,7 +110,7 @@ async def UsersNOTRecommend(year : int):
 
         top3l = top3least.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = top3l['id'].tolist
+        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3l))]
 
         return(listafuncion)
 
@@ -148,8 +148,8 @@ async def recommend_games(product_id, num_recommendations=5):
         # Obtén el juego de referencia
         target_game = df_games[df_games['id'] == product_id]
 
-        if target_game.empty:
-            return {"message": "No se encontró el juego de referencia."}
+        #if target_game.empty:
+        #    return {"message": "No se encontró el juego de referencia."}
 
         # Combina las etiquetas (tags) y géneros en una sola cadena de texto
         target_game_tags_and_genres = ' '.join(target_game['tags'].fillna('') + ' ' + target_game['genres'].fillna(''))
