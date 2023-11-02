@@ -77,7 +77,7 @@ async def UserForGenre(genre : str):
 @app.get("/UsersRecommend/{year}")
 async def UsersRecommend(year : int):
     try:
-        year_buscado = year
+        year_buscado = int(year)
         recommend_year = df_reviews[df_reviews['posted'] == year_buscado]
 
         recommend_true = recommend_year[recommend_year['recommend'] & ((recommend_year['sentiment_analysis'] == 1) | (recommend_year['sentiment_analysis'] == 2))]
@@ -88,7 +88,7 @@ async def UsersRecommend(year : int):
 
         top3m = top3most.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3l))]
+        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3m))]
 
         return(listafuncion)
 
@@ -99,7 +99,7 @@ async def UsersRecommend(year : int):
 @app.get("/UsersNOTRecommend/{year}")
 async def UsersNOTRecommend(year : int):
     try:
-        year_buscado = year
+        year_buscado = int(year)
         recommend_year = df_reviews[df_reviews['posted'] == year_buscado]
 
         recommend_false = recommend_year[recommend_year['recommend'] == False & ((recommend_year['sentiment_analysis'] == 0) )]
@@ -121,7 +121,7 @@ async def UsersNOTRecommend(year : int):
 @app.get("/SentimentAnalysis/{year}")
 async def SentimentAnalysis(year : int):
     try:
-        year_buscado = year
+        year_buscado = int(year)
 
         sentiment_year = df_reviews[df_reviews['posted'] == year_buscado]
         sentiment_year = sentiment_year.groupby('sentiment_analysis').size().reset_index(name='count')
@@ -146,7 +146,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 async def recommend_games(product_id, num_recommendations=5):
     try:
         # Obtén el juego de referencia
-        target_game = df_games[df_games['id'] == product_id]
+        target_game = df_games[df_games['id'] == int(product_id)]
 
         #if target_game.empty:
         #    return {"message": "No se encontró el juego de referencia."}
