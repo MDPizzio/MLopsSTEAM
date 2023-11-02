@@ -58,16 +58,13 @@ async def UserForGenre(genre : str):
 
         resultados3 = resultados3.sort_values(['playtime_forever'], ascending= False)
         # 'resultados' ahora contiene la suma de 'playtime_forever' por 'item_id'
-
-        resultados4 = pd.merge(resultados3, df_games[['id', 'release_date']], left_on='item_id', right_on='id', how='left')
-
-        print('Usuario con mas horas jugadas para el genero', cadena_a_buscar, 'es', userbuscado['user_id'])
+      
         resultados4 = pd.merge(resultados3, df_games[['id', 'release_date']], left_on='item_id', right_on='id', how='left')
         resultados4 = resultados4.groupby('release_date')['playtime_forever'].sum().reset_index()
         resultados4 = resultados4.sort_values(['release_date'], ascending= False)
         # Filtrar las filas donde 'playtime_forever' sea mayor que 0 y crear una lista de tuplas
         lista_anos_horas = [(f"Año: {int(ano)}", f"Horas: {int(hora)}") for ano, hora in zip(resultados4['release_date'], resultados4['playtime_forever'] / 60) if hora > 0]
-
+        lista_anos_horas.insert(0,{"El usuario con mas horas jugados para el genero es",userbuscado['user_id']})
         # Imprimir la lista de años y horas
         return(lista_anos_horas)
 
@@ -113,7 +110,7 @@ async def UsersNOTRecommend(year : int):
 
         top3l = top3least.sort_values(['sentiment_analysis'], ascending= False).head(3)
 
-        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3m))]
+        listafuncion = [(f'Puesto {i + 1}', top3l['title'].iloc[i]) for i in range(len(top3l))]
 
         return(listafuncion)
 
@@ -125,20 +122,15 @@ async def UsersNOTRecommend(year : int):
 async def SentimentAnalysis(year : int):
     try:
         year_buscado = year
+
         sentiment_year = df_reviews[df_reviews['posted'] == year_buscado]
         sentiment_year = sentiment_year.groupby('sentiment_analysis').size().reset_index(name='count')
 
         listafuncion = []
-        for index, row in sentiment_year.iterrows():
-            if row['sentiment_analysis'] == 0:
-                listafuncion.append('Analisis de Sentimiento negativos')
-                listafuncion.append(row['count'])
-            elif row['sentiment_analysis'] == 1:
-                listafuncion.append('Analisis de Sentimiento neutrales')
-                listafuncion.append(row['count'])
-            else :
-                listafuncion.append('Analisis de Sentimiento positivos')
-                listafuncion.append(row['count'])
+        listafuncion.insert(0,"Segun el año de lanzamiento "+ str(year_buscado))
+        listafuncion.insert(1, "Análisis de Sentimiento negativos : " + str(sentiment_year['count'].iloc[0]))
+        listafuncion.insert(2, "Análisis de Sentimiento neutrales : " + str(sentiment_year['count'].iloc[1]))
+        listafuncion.insert(3, "Análisis de Sentimiento positivos : " + str(sentiment_year['count'].iloc[2]))
         return(listafuncion)
 
 
@@ -176,7 +168,7 @@ async def recommend_games(product_id, num_recommendations=5):
         recommended_games = df_games.loc[similar_games_indices[1:num_recommendations + 1]]
 
         # Devuelve la lista de juegos recomendados
-        return recommended_games[['app_name', 'tags', 'genres']].to_dict(orient='records')
+        return recommended_games[['title']].to_dict(orient='records')
 
     except Exception as e:
         return {"message": f"Error: {str(e)}"}
